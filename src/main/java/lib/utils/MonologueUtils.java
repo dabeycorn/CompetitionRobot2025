@@ -12,7 +12,7 @@ import monologue.Monologue;
 // TODO make this less stupid :)
 
 /** Utility class for logging /w {@link Monologue} */
-public class LogUtils {
+public class MonologueUtils {
   /**
    * Automatically logs all fields of an object of a record with monologue
    *
