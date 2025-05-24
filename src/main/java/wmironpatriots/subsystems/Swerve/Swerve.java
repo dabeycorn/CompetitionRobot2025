@@ -29,6 +29,7 @@ import wmironpatriots.subsystems.Swerve.gyro.GyroHardwareComp;
 import wmironpatriots.subsystems.Swerve.gyro.GyroHardwareNone;
 import wmironpatriots.subsystems.Swerve.module.Module;
 import wmironpatriots.subsystems.Swerve.module.ModuleHardwareComp;
+import wmironpatriots.subsystems.Swerve.module.ModuleHardwareSim;
 
 public class Swerve implements Subsystem {
   public static Swerve create() {
@@ -44,7 +45,7 @@ public class Swerve implements Subsystem {
     } else {
       // ! PLACEHOLDER FOR SIM HARDWARE INIT
       for (int i = 0; i < modules.length; i++) {
-        modules[i] = new Module(new ModuleHardwareComp(moduleConfigs[i]));
+        modules[i] = new Module(new ModuleHardwareSim(moduleConfigs[i]));
       }
 
       return new Swerve(new GyroHardwareNone(), modules);
