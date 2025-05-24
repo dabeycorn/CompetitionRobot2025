@@ -64,7 +64,7 @@ public class Module {
    * @return {@link SwerveModuleState} representing the measured position and speed of the module
    */
   public SwerveModuleState getSwerveModuleState() {
-    return new SwerveModuleState(loggableState.driveSetpointMps(), getRotation2d());
+    return new SwerveModuleState(loggableState.driveMps(), getRotation2d());
   }
 
   /**
