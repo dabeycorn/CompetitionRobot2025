@@ -9,90 +9,68 @@ package wmironpatriots.subsystems.Swerve.module;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Seconds;
 
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
-import com.ctre.phoenix6.controls.VoltageOut;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.sim.ChassisReference;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import wmironpatriots.Constants;
 import wmironpatriots.subsystems.Swerve.SwerveConstants;
 import wmironpatriots.subsystems.Swerve.SwerveConstants.ModuleConfig;
 
 public class ModuleHardwareSim implements ModuleHardware {
+  public static final double PIVOT_REDUCTION = 150 / 7;
+  public static final double DRIVE_REDUCTION = 6.12;
+
   private final int index;
 
   private final DCMotor pivotModel = DCMotor.getKrakenX60Foc(1);
   private final DCMotor driveModel = DCMotor.getKrakenX60Foc(1);
 
   private final DCMotorSim pivotSim, driveSim;
-  private final TalonFX drive;
-  private final TalonFXConfiguration driveCfg;
+  private double pivotAppliedVolts, driveAppliedVolts;
 
-  private final VoltageOut voltReq = new VoltageOut(0.0);
-  private final VelocityTorqueCurrentFOC velReq = new VelocityTorqueCurrentFOC(0.0);
-
-  private double lastUpdateTimestamp = 0.0;
-  private double pivotAppliedVolts = 0.0;
-
-  private final PIDController pivotFeedback = new PIDController(1, 0.0, 0.0);
+  private PIDController pivotFeedback = new PIDController(50.0, 0.0, 0.0);
+  private PIDController driveFeedback = new PIDController(3.2, 0.0, 0.0);
+  private SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(0.233, 2.02, 0.05);
 
   public ModuleHardwareSim(ModuleConfig moduleConfig) {
     index = moduleConfig.index();
 
     pivotSim =
         new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(pivotModel, 0.004, 21.428571428571427),
-            pivotModel,
-            0.0,
-            0.0);
+            LinearSystemId.createDCMotorSystem(pivotModel, 0.004, 150 / 7), pivotModel, 0.0, 0.0);
 
     driveSim =
         new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(driveModel, 0.025, 6.122448979591837),
-            driveModel,
-            0.0,
-            0.0);
+            LinearSystemId.createDCMotorSystem(driveModel, 0.025, 6.12), driveModel, 0.0, 0.0);
 
-    drive = new TalonFX(moduleConfig.driveId().getId(), moduleConfig.driveId().getBusName());
+    pivotFeedback.enableContinuousInput(0, 0.5);
+  }
 
-    // Drive Configs
-    driveCfg = new TalonFXConfiguration();
-    // Current limits
-    driveCfg.CurrentLimits.SupplyCurrentLimit = 40.0;
-    driveCfg.CurrentLimits.SupplyCurrentLimitEnable = true;
-    driveCfg.CurrentLimits.StatorCurrentLimit = 120.0;
-    driveCfg.CurrentLimits.StatorCurrentLimitEnable = true;
-    // Inverts
-    driveCfg.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    driveCfg.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    // Sensor
-    // Meters per second
-    driveCfg.Feedback.SensorToMechanismRatio = 6.122448979591837;
-    // Current control gains
-    // Gains copied from AlphaSwerveConstants
-    driveCfg.Slot0.kV = 5.0;
-    // kT (stall torque / stall current) converted to linear wheel frame
-    driveCfg.Slot0.kA = 0.0; // (9.37 / 483.0) / getDriveRotorToMeters(); // 3.07135116146;
-    driveCfg.Slot0.kS = 10.0;
-    driveCfg.Slot0.kP = 1.0;
-    driveCfg.Slot0.kD = 0.0; // 1.0;
+  @Override
+  public LoggableState getLoggableState() {
+    pivotSim.update(Constants.LOOPTIME.in(Seconds));
+    driveSim.update(Constants.LOOPTIME.in(Seconds));
 
-    driveCfg.TorqueCurrent.TorqueNeutralDeadband = 10.0;
-
-    drive.getConfigurator().apply(driveCfg);
-
-    drive.getSimState().Orientation =
-        driveCfg.MotorOutput.Inverted == InvertedValue.CounterClockwise_Positive
-            ? ChassisReference.CounterClockwise_Positive
-            : ChassisReference.Clockwise_Positive;
+    return new LoggableState(
+        index,
+        true,
+        pivotSim.getAngularPositionRotations(),
+        0.0,
+        pivotAppliedVolts,
+        pivotSim.getCurrentDrawAmps(),
+        pivotSim.getTorqueNewtonMeters() / pivotModel.KtNMPerAmp,
+        true,
+        driveSim.getAngularPositionRad() * SwerveConstants.WHEEL_RADIUS.in(Meters),
+        driveSim.getAngularVelocityRadPerSec() * SwerveConstants.WHEEL_RADIUS.in(Meters),
+        driveFeedback.getSetpoint(),
+        driveAppliedVolts,
+        driveSim.getCurrentDrawAmps(),
+        pivotSim.getTorqueNewtonMeters() / driveModel.KtNMPerAmp,
+        true,
+        pivotSim.getAngularPositionRotations());
   }
 
   private double addFriction(double motorVoltage, double frictionVoltage) {
@@ -106,37 +84,12 @@ public class ModuleHardwareSim implements ModuleHardware {
     return motorVoltage;
   }
 
-  @Override
-  public LoggableState getLoggableState() {
-    var driveSimState = drive.getSimState();
-    double driveSimVolts = addFriction(driveSimState.getMotorVoltage(), 0.25);
-
-    driveSim.setInput(driveSimVolts);
-    double timestamp = RobotController.getFPGATime();
-    pivotSim.update(Constants.LOOPTIME.in(Seconds));
-    driveSim.update(Constants.LOOPTIME.in(Seconds));
-    lastUpdateTimestamp = timestamp;
-
-    driveSimState.setRotorVelocity(
-        (driveSim.getAngularVelocityRPM() / 60.0) * driveCfg.Feedback.SensorToMechanismRatio);
-
-    return new LoggableState(
-        index,
-        true,
-        pivotSim.getAngularPositionRotations(),
-        0.0,
-        pivotAppliedVolts,
-        pivotSim.getCurrentDrawAmps(),
-        pivotSim.getTorqueNewtonMeters() / pivotModel.KtNMPerAmp,
-        true,
-        driveSim.getAngularPositionRad() * SwerveConstants.WHEEL_RADIUS.in(Meters),
-        driveSim.getAngularVelocityRadPerSec() * SwerveConstants.WHEEL_RADIUS.in(Meters),
-        0.0,
-        drive.getSimState().getMotorVoltage(),
-        driveSim.getCurrentDrawAmps(),
-        pivotSim.getTorqueNewtonMeters() / driveModel.KtNMPerAmp,
-        true,
-        pivotSim.getAngularPositionRad());
+  /**
+   * @return the drive motor speed in Meters per Second
+   */
+  private double getDriveSpeedMps() {
+    return (driveSim.getAngularVelocityRPM() / 60)
+        * (SwerveConstants.WHEEL_RADIUS.in(Meters) * 2 * Math.PI);
   }
 
   @Override
@@ -147,7 +100,8 @@ public class ModuleHardwareSim implements ModuleHardware {
 
   @Override
   public void setDriveAppliedVolts(double volts) {
-    drive.setControl(voltReq.withOutput(volts));
+    driveAppliedVolts = MathUtil.clamp(volts, -12.0, 12.0);
+    driveSim.setInputVoltage(driveAppliedVolts);
   }
 
   @Override
@@ -157,13 +111,13 @@ public class ModuleHardwareSim implements ModuleHardware {
 
   @Override
   public void setDriveSetpointSpeed(double speedMps) {
-    drive.setControl(velReq.withVelocity(speedMps));
+    setDriveAppliedVolts(driveFeedback.calculate(getDriveSpeedMps(), speedMps));
   }
 
   @Override
   public void stop() {
     pivotSim.setInputVoltage(0.0);
-    drive.stopMotor();
+    driveSim.setInputVoltage(0.0);
   }
 
   @Override

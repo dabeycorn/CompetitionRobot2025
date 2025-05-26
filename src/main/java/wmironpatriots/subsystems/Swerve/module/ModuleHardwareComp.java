@@ -6,6 +6,8 @@
 
 package wmironpatriots.subsystems.Swerve.module;
 
+import static edu.wpi.first.units.Units.Meters;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -20,6 +22,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import lib.utils.TalonFxUtil;
+import wmironpatriots.subsystems.Swerve.SwerveConstants;
 import wmironpatriots.subsystems.Swerve.SwerveConstants.ModuleConfig;
 
 /**
@@ -34,6 +37,9 @@ import wmironpatriots.subsystems.Swerve.SwerveConstants.ModuleConfig;
  * <p>CANcoder absolute encoder
  */
 public class ModuleHardwareComp implements ModuleHardware {
+  public static final double PIVOT_REDUCTION = 150 / 7;
+  public static final double DRIVE_REDUCTION = 6.12;
+
   private final int index;
 
   protected final TalonFX pivot, drive;
@@ -80,7 +86,7 @@ public class ModuleHardwareComp implements ModuleHardware {
     pivotCfg.ClosedLoopGeneral.ContinuousWrap = true;
     pivotCfg.Feedback.FeedbackRemoteSensorID = moduleConfig.encoderId().getId();
     pivotCfg.Feedback.FeedbackRotorOffset = moduleConfig.encoderOffsetRevs();
-    pivotCfg.Feedback.RotorToSensorRatio = 0.0; // TODO
+    pivotCfg.Feedback.RotorToSensorRatio = PIVOT_REDUCTION;
     pivotCfg.Feedback.SensorToMechanismRatio = 0.0;
     pivotCfg.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
 
@@ -109,7 +115,8 @@ public class ModuleHardwareComp implements ModuleHardware {
     driveCfg.ClosedLoopRamps.TorqueClosedLoopRampPeriod = 0.02;
 
     driveCfg.ClosedLoopGeneral.ContinuousWrap = true;
-    driveCfg.Feedback.SensorToMechanismRatio = 0.0; // TODO
+    driveCfg.Feedback.SensorToMechanismRatio =
+        DRIVE_REDUCTION / (SwerveConstants.WHEEL_RADIUS.in(Meters) * 2 * Math.PI);
     driveCfg.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
 
     driveCfg.Slot0.kP = 35.0;
