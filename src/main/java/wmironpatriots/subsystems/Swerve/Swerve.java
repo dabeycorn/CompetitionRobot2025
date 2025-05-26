@@ -20,6 +20,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -94,7 +95,7 @@ public class Swerve implements Subsystem {
     }
 
     if (DriverStation.isDisabled()) {
-      stopAndLock();
+      stop();
     }
   }
 
@@ -129,7 +130,9 @@ public class Swerve implements Subsystem {
                         * SwerveConstants.MAX_LINEAR_SPEED.in(MetersPerSecond),
                     angularRateMagnitude.getAsDouble()
                         * SwerveConstants.MAX_ANGULAR_RATE.in(RadiansPerSecond),
-                    getHeadingRotation2d())));
+                    DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+                      ? getHeadingRotation2d()
+                      : getHeadingRotation2d().plus(Rotation2d.k180deg))));
   }
 
   public Command stopAndLock() {
