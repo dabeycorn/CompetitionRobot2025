@@ -40,10 +40,7 @@ public class Module {
     setpointState.optimize(getRotation2d());
 
     // Decrease drive speed based on distance to angle setpoint (reduces thread wear)
-    setpointState.cosineScale(getRotation2d());
-    // setpointState.speedMetersPerSecond *= setpointState.angle.minus(getRotation2d()).getCos();
-
-    // System.out.println(setpointState.speedMetersPerSecond);
+    setpointState.speedMetersPerSecond *= setpointState.angle.minus(getRotation2d()).getCos();
 
     hardware.setDriveSetpointSpeed(setpointState.speedMetersPerSecond);
     hardware.setPivotSetpointPose(setpointState.angle.getRotations());

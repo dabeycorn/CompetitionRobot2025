@@ -111,7 +111,9 @@ public class ModuleHardwareSim implements ModuleHardware {
 
   @Override
   public void setDriveSetpointSpeed(double speedMps) {
-    setDriveAppliedVolts(driveFeedback.calculate(getDriveSpeedMps(), speedMps) + driveFeedforward.calculate(speedMps));
+    setDriveAppliedVolts(
+        driveFeedback.calculate(getDriveSpeedMps(), speedMps)
+            + driveFeedforward.calculate(speedMps));
   }
 
   @Override

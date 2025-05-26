@@ -156,14 +156,13 @@ public class Swerve implements Subsystem {
    */
   public void setChassisSpeeds(ChassisSpeeds speeds) {
     // https://github.com/wpilibsuite/allwpilib/issues/7332
-    // var states = kinematics.toSwerveModuleStates(velocity.getRobotRelative());
-    // SwerveDriveKinematics.desaturateWheelSpeeds(states, SwerveConstants.MAX_LINEAR_SPEED);
+    var states = kinematics.toSwerveModuleStates(speeds);
+    SwerveDriveKinematics.desaturateWheelSpeeds(states, SwerveConstants.MAX_LINEAR_SPEED);
 
-    // var speeds = kinematics.toChassisSpeeds(states);
-    // speeds = ChassisSpeeds.discretize(speeds, Constants.LOOPTIME.in(Seconds));
+    speeds = kinematics.toChassisSpeeds(states);
     speeds = ChassisSpeeds.discretize(speeds, Constants.LOOPTIME.in(Seconds));
 
-    var states = kinematics.toSwerveModuleStates(speeds);
+    states = kinematics.toSwerveModuleStates(speeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(
         states, SwerveConstants.MAX_LINEAR_SPEED.in(MetersPerSecond));
 
