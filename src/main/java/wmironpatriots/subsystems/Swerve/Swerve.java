@@ -6,6 +6,8 @@
 
 package wmironpatriots.subsystems.Swerve;
 
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -22,6 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import java.util.function.DoubleSupplier;
 import wmironpatriots.Constants;
 import wmironpatriots.Robot;
 import wmironpatriots.subsystems.Swerve.gyro.GyroHardware;
@@ -43,7 +46,6 @@ public class Swerve implements Subsystem {
 
       return new Swerve(new GyroHardwareComp(), modules);
     } else {
-      // ! PLACEHOLDER FOR SIM HARDWARE INIT
       for (int i = 0; i < modules.length; i++) {
         modules[i] = new Module(new ModuleHardwareSim(moduleConfigs[i]));
       }
@@ -92,7 +94,7 @@ public class Swerve implements Subsystem {
     }
 
     if (DriverStation.isDisabled()) {
-      stop();
+      stopAndLock();
     }
   }
 
@@ -103,6 +105,46 @@ public class Swerve implements Subsystem {
         simulatedHeading.rotateBy(
             Rotation2d.fromRadians(
                 !Double.isNaN(angularRate) ? angularRate * Constants.LOOPTIME.in(Seconds) : 0));
+  }
+
+  /**
+   * Drives robot based on magnitudes
+   *
+   * @param xSpeedMagnitude Input stream representing desired x speed magnitude
+   * @param ySpeedMagnitude Input stream representing desired y speed magnitude
+   * @param angularRateMagnitude Input stream representing desiredd angular rate magnitude
+   * @return {@link Command}
+   */
+  public Command driveFromMagnitudes(
+      DoubleSupplier xSpeedMagnitude,
+      DoubleSupplier ySpeedMagnitude,
+      DoubleSupplier angularRateMagnitude) {
+    return this.run(
+        () ->
+            setChassisSpeeds(
+                ChassisSpeeds.fromFieldRelativeSpeeds(
+                    xSpeedMagnitude.getAsDouble()
+                        * SwerveConstants.MAX_LINEAR_SPEED.in(MetersPerSecond),
+                    ySpeedMagnitude.getAsDouble()
+                        * SwerveConstants.MAX_LINEAR_SPEED.in(MetersPerSecond),
+                    angularRateMagnitude.getAsDouble()
+                        * SwerveConstants.MAX_ANGULAR_RATE.in(RadiansPerSecond),
+                    getHeadingRotation2d())));
+  }
+
+  public Command stopAndLock() {
+    return this.runOnce(
+        () -> {
+          var states =
+              new SwerveModuleState[] {
+                new SwerveModuleState(0.0, Rotation2d.fromDegrees(45)),
+                new SwerveModuleState(0.0, Rotation2d.fromDegrees(-45)),
+                new SwerveModuleState(0.0, Rotation2d.fromDegrees(45)),
+                new SwerveModuleState(0.0, Rotation2d.fromDegrees(-45)),
+              };
+
+          setSwerveModuleStates(states);
+        });
   }
 
   /**
@@ -122,9 +164,19 @@ public class Swerve implements Subsystem {
     speeds = ChassisSpeeds.discretize(speeds, Constants.LOOPTIME.in(Seconds));
 
     var states = kinematics.toSwerveModuleStates(speeds);
-    SwerveDriveKinematics.desaturateWheelSpeeds(states, SwerveConstants.MAX_LINEAR_SPEED);
-    setpoint.set(states);
+    SwerveDriveKinematics.desaturateWheelSpeeds(
+        states, SwerveConstants.MAX_LINEAR_SPEED.in(MetersPerSecond));
 
+    setSwerveModuleStates(states);
+  }
+
+  /**
+   * Sets the setpoints of each swerve module
+   *
+   * @param states {@link SwerveModuleState} array of desired states
+   */
+  public void setSwerveModuleStates(SwerveModuleState[] states) {
+    setpoint.set(states);
     for (int i = 0; i < modules.length; i++) {
       modules[i].setSetpoints(states[i]);
     }

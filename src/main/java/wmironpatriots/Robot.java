@@ -7,6 +7,7 @@
 package wmironpatriots;
 
 import com.ctre.phoenix6.SignalLogger;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -15,20 +16,18 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import lib.drivers.LoggedCommandRobot;
 import monologue.Monologue;
-import wmironpatriots.commands.factories.SwerveCommandFactory;
 import wmironpatriots.subsystems.Swerve.Swerve;
 
 public class Robot extends LoggedCommandRobot {
-  private final CommandXboxController driver = new CommandXboxController(0);
+  private final CommandPS5Controller driver = new CommandPS5Controller(0);
   private final CommandXboxController operator = new CommandXboxController(1);
 
   private final Swerve swerve = Swerve.create();
-
-  private final SwerveCommandFactory swerveCmdFactory = new SwerveCommandFactory(swerve);
 
   private final Alert browningOut;
 
@@ -75,12 +74,23 @@ public class Robot extends LoggedCommandRobot {
   public void configureBindings() {}
 
   public void configureGameBehavior() {
-    swerve.setDefaultCommand(swerveCmdFactory.defaultCommand());
-
-    inTeleoperated.whileTrue(
-        swerveCmdFactory
-            .teleopDrive(driver::getLeftX, driver::getLeftY, driver::getRightX)
+    swerve.setDefaultCommand(
+        swerve
+            .driveFromMagnitudes(
+                () -> modifyJoystick(driver.getLeftY() * -1),
+                () -> modifyJoystick(driver.getLeftX() * -1),
+                () -> modifyJoystick(driver.getRightX() * -1))
             .repeatedly());
+  }
+
+  /**
+   * Squares and deadbands a joystick value
+   *
+   * @param val joystick value
+   * @return modified joystick value
+   */
+  public static double modifyJoystick(double val) {
+    return MathUtil.applyDeadband(Math.abs(Math.pow(val, 2)) * Math.signum(val), 0.08);
   }
 
   /** Command for driver controller rumble */

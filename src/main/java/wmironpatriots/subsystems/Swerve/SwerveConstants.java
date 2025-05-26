@@ -70,10 +70,10 @@ public class SwerveConstants {
 
   public static final Translation2d[] MODULE_OFFSETS =
       new Translation2d[] {
-        new Translation2d(TRACK_WIDTH.in(Meters) / 2.0, -TRACK_WIDTH.in(Meters) / 2.0),
         new Translation2d(TRACK_WIDTH.in(Meters) / 2.0, TRACK_WIDTH.in(Meters) / 2.0),
-        new Translation2d(-TRACK_WIDTH.in(Meters) / 2.0, -TRACK_WIDTH.in(Meters) / 2.0),
-        new Translation2d(TRACK_WIDTH.in(Meters) / 2.0, -TRACK_WIDTH.in(Meters) / 2.0)
+        new Translation2d(TRACK_WIDTH.in(Meters) / 2.0, -TRACK_WIDTH.in(Meters) / 2.0),
+        new Translation2d(-TRACK_WIDTH.in(Meters) / 2.0, TRACK_WIDTH.in(Meters) / 2.0),
+        new Translation2d(-TRACK_WIDTH.in(Meters) / 2.0, -TRACK_WIDTH.in(Meters) / 2.0)
       };
 
   public static final ModuleConfig[] MODULE_CONFIGS =
