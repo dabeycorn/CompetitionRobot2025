@@ -94,13 +94,13 @@ public class ModuleHardwareSim implements ModuleHardware {
 
   @Override
   public void setPivotAppliedVolts(double volts) {
-    pivotAppliedVolts = MathUtil.clamp(volts, -12.0, 12.0);
+    pivotAppliedVolts = addFriction(MathUtil.clamp(volts, -12.0, 12.0), 0.25);
     pivotSim.setInputVoltage(pivotAppliedVolts);
   }
 
   @Override
   public void setDriveAppliedVolts(double volts) {
-    driveAppliedVolts = MathUtil.clamp(volts, -12.0, 12.0);
+    driveAppliedVolts = addFriction(MathUtil.clamp(volts, -12.0, 12.0), 0.25);
     driveSim.setInputVoltage(driveAppliedVolts);
   }
 
