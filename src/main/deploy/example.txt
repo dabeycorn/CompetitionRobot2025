@@ -1,0 +1,1 @@
+Everything in this directory will be transferred to the RIO when deployed. Deleting files from this directory will delete them from the RIO when delpoyed. 
