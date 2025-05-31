@@ -6,7 +6,14 @@
 
 package wmironpatriots;
 
+import org.littletonrobotics.junction.LogFileUtil;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+
 import com.ctre.phoenix6.SignalLogger;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -20,15 +27,20 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import lib.drivers.LoggedCommandRobot;
-import monologue.Monologue;
-import wmironpatriots.subsystems.Swerve.Swerve;
+import wmironpatriots.Constants.RobotType;
+import wmironpatriots.subsystems.swerve.Swerve;
 
 public class Robot extends LoggedCommandRobot {
+  public static final RobotType robotType = Robot.isReal() ? RobotType.REAL : RobotType.SIM;
+
+  // HARDWARE
   private final CommandPS5Controller driver = new CommandPS5Controller(0);
   private final CommandXboxController operator = new CommandXboxController(1);
 
+  // SUBSYSTEMS
   private final Swerve swerve = Swerve.create();
 
+  // ALERTS
   private final Alert browningOut;
 
   public Robot() {
@@ -36,44 +48,63 @@ public class Robot extends LoggedCommandRobot {
     // Shuts up driverstation
     DriverStation.silenceJoystickConnectionWarning(true);
 
-    // logs build data to the datalog
-    final String meta = "/BuildData/";
-    Monologue.log(meta + "RuntimeType", getRuntimeType().toString());
-    Monologue.log(meta + "ProjectName", BuildConstants.MAVEN_NAME);
-    Monologue.log(meta + "Version", BuildConstants.VERSION);
-    Monologue.log(meta + "BuildDate", BuildConstants.BUILD_DATE);
-    Monologue.log(meta + "GitDirty", String.valueOf(BuildConstants.DIRTY));
-    Monologue.log(meta + "GitSHA", BuildConstants.GIT_SHA);
-    Monologue.log(meta + "GitDate", BuildConstants.GIT_DATE);
-    Monologue.log(meta + "GitBranch", BuildConstants.GIT_BRANCH);
-
     // ! DO NOT REMOVE
     // Signal Logger is set to auto enable when connected to FMS, causing massive delay
     SignalLogger.enableAutoLogging(false);
-    SignalLogger.stop();
+
+    // logs build data to the datalog
+    Logger.recordMetadata("RuntimeType", getRuntimeType().toString());
+    Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
+    Logger.recordMetadata("Version", BuildConstants.VERSION);
+    Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
+    Logger.recordMetadata("GitDirty", String.valueOf(BuildConstants.DIRTY));
+    Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
+    Logger.recordMetadata("GitDate", BuildConstants.BUILD_DATE);
+    Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
+
+    // Setup Logger data recivers and replay sources 
+    switch (robotType) {
+      case REAL:
+        Logger.addDataReceiver(new WPILOGWriter("/U")); // Log to USB
+        Logger.addDataReceiver(new NT4Publisher()); // Log to Network Tables
+        break;
+      case SIM:
+        Logger.addDataReceiver(new NT4Publisher()); // Log to Network Tables only
+        break;
+      case REPLAY:
+        setUseTiming(false); // Run as fast as possible
+        String logPath = LogFileUtil.findReplayLog(); // Pull replay file name
+        Logger.setReplaySource(new WPILOGReader(logPath));
+        Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Saves replay as new log
+        break;
+    }
+
+    // Once Logger starts, no data recivers, replay sources, or metadata can be added
+    Logger.start();
 
     // Sets up alerts
     browningOut = new Alert("Browning Out!", AlertType.kWarning);
     new Trigger(() -> RobotController.isBrownedOut())
         .onTrue(Commands.run(() -> browningOut.set(true)));
 
-    // Log dashboard inforation periodically
-    addPeriodic(
-        () -> {
-          SmartDashboard.putNumber("Battery Volts", RobotController.getBatteryVoltage());
-          SmartDashboard.putNumber("CPU Temps", RobotController.getCPUTemp());
-          SmartDashboard.putBoolean("RSL status", RobotController.getRSLState());
-          SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
-        },
-        0.1);
-
     configureBindings();
     configureGameBehavior();
   }
 
-  public void configureBindings() {}
+  @Override
+  public void robotPeriodic() {
+    super.robotPeriodic();
 
-  public void configureGameBehavior() {
+    // Log dashboard info
+    SmartDashboard.putNumber("Battery Volts", RobotController.getBatteryVoltage());
+    SmartDashboard.putNumber("CPU Temps", RobotController.getCPUTemp());
+    SmartDashboard.putBoolean("RSL status", RobotController.getRSLState());
+    SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
+  }
+
+  private void configureBindings() {}
+
+  private void configureGameBehavior() {
     swerve.setDefaultCommand(
         swerve
             .driveFromMagnitudes(
@@ -89,7 +120,7 @@ public class Robot extends LoggedCommandRobot {
    * @param val joystick value
    * @return modified joystick value
    */
-  public static double modifyJoystick(double val) {
+  private static double modifyJoystick(double val) {
     return MathUtil.applyDeadband(Math.abs(Math.pow(val, 2)) * Math.signum(val), 0.08);
   }
 

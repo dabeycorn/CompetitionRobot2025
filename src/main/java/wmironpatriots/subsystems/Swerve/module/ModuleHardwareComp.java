@@ -154,25 +154,26 @@ public class ModuleHardwareComp implements ModuleHardware {
   }
 
   @Override
-  public LoggableState getLoggableState() {
-    return new LoggableState(
-        index,
-        BaseStatusSignal.refreshAll(pivotPose, pivotVolts, pivotCurrent, pivotTorque).isOK(),
-        pivotPose.getValueAsDouble(),
-        poseReq.Position,
-        pivotVolts.getValueAsDouble(),
-        pivotCurrent.getValueAsDouble(),
-        pivotTorque.getValueAsDouble(),
-        BaseStatusSignal.refreshAll(drivePose, driveSpeed, driveVolts, driveCurrent, driveTorque)
-            .isOK(),
-        drivePose.getValueAsDouble(),
-        driveSpeed.getValueAsDouble(),
-        velReq.Velocity,
-        driveVolts.getValueAsDouble(),
-        driveCurrent.getValueAsDouble(),
-        driveTorque.getValueAsDouble(),
-        BaseStatusSignal.refreshAll(cancoderPose).isOK(),
-        cancoderPose.getValueAsDouble());
+  public void updateLoggableState(LoggableState oldState) {
+    oldState.index = index;
+    oldState.pivotIsOk = BaseStatusSignal.refreshAll(pivotPose, pivotVolts, pivotCurrent, pivotTorque).isOK();
+    oldState.pivotRevs = pivotPose.getValueAsDouble();
+    oldState.pivotSetpointRevs = poseReq.Position;
+    oldState.pivotAppliedVolts = pivotVolts.getValueAsDouble();
+    oldState.pivotCurrentAmps = pivotCurrent.getValueAsDouble();
+    oldState.pivotTorqueAmps = pivotTorque.getValueAsDouble();
+    
+    oldState.driveIsOk = BaseStatusSignal.refreshAll(drivePose, driveSpeed, driveVolts, driveCurrent, driveTorque)
+            .isOK();
+    oldState.driveDistanceMeters = drivePose.getValueAsDouble();
+    oldState.driveMps = driveSpeed.getValueAsDouble();
+    oldState.driveSetpointMps = velReq.Velocity;
+    oldState.driveAppliedVolts = driveVolts.getValueAsDouble();
+    oldState.driveCurrentAmps = driveCurrent.getValueAsDouble();
+    oldState.driveTorqueAmps = driveTorque.getValueAsDouble();
+    
+    oldState.cancoderIsOk = BaseStatusSignal.refreshAll(cancoderPose).isOK();
+    oldState.cancoderRevs = cancoderPose.getValueAsDouble();
   }
 
   @Override

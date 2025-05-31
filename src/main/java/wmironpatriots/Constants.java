@@ -13,6 +13,12 @@ import edu.wpi.first.units.measure.Time;
 import lib.drivers.CanDeviceId;
 
 public class Constants {
+  public static enum RobotType {
+    REAL,
+    SIM,
+    REPLAY
+  }
+
   public static Time LOOPTIME = Seconds.of(0.02);
 
   /** Flags for runtime */

@@ -6,76 +6,83 @@
 
 package wmironpatriots.subsystems.swerve.module;
 
+import org.littletonrobotics.junction.AutoLog;
+
 /** Generalized hardware methods for a swerve-module's hardware */
 public interface ModuleHardware {
   /**
    * Represents a set of measured values from module hardware
    *
-   * @param index
-   * @param pivotIsOk Is pivot motor measuring correctly?
-   * @param pivotRevs Position measurement of pivot motor in revolutions (relative encoder)
-   * @param pivotSetpointPoseRevs Position setpoint of pivot motor in revolutions
-   * @param pivotAppliedVolts Output voltage of pivot motor in volts
-   * @param pivotStatorAmps Stator current of pivot motor in amps
-   * @param pivotTorqueAmps Torque output of pivot motor in amps
-   * @param driveIsOk Is drive motor measuring correctly?
-   * @param driveMps Speed measurement of the drive motor in Meters/Second
-   * @param drivePose Distance driven in meters
-   * @param driveSetpointMps Speed setpoint of drive motor in Meters/Second
-   * @param driveAppliedVolts Output voltage of drive motor in volts
-   * @param driveStatorAmps Stator current of drive motor in amps
-   * @param driveTorqueAmps Torque output of drive motor in amps
-   * @param cancoderIsOk Is CANcoder measuring correctly?
-   * @param cancoderRevs Position measurement of pivot motor in revolutions
+   * <p> index
+   * <p> pivotIsOk Is pivot motor measuring correctly?
+   * <p> pivotRevs Position measurement of pivot motor in revolutions (relative encoder)
+   * <p> pivotSetpointPoseRevs Position setpoint of pivot motor in revolutions
+   * <p> pivotAppliedVolts Output voltage of pivot motor in volts
+   * <p> pivotStatorAmps Stator current of pivot motor in amps
+   * <p> pivotTorqueAmps Torque output of pivot motor in amps
+   * <p> driveIsOk Is drive motor measuring correctly?
+   * <p> driveDistance Distance driven in meters
+   * <p> driveMps Speed measurement of the drive motor in Meters/Second
+   * <p> driveSetpointMps Speed setpoint of drive motor in Meters/Second
+   * <p> driveAppliedVolts Output voltage of drive motor in volts
+   * <p> driveStatorAmps Stator current of drive motor in amps
+   * <p> driveTorqueAmps Torque output of drive motor in amps
+   * <p> cancoderIsOk Is CANcoder measuring correctly?
+   * <p> cancoderRevs Position measurement of pivot motor in revolutions
    */
-  public static record LoggableState(
-      int index,
-      boolean pivotIsOk,
-      double pivotRevs,
-      double pivotSetpointPoseRevs,
-      double pivotAppliedVolts,
-      double pivotStatorAmps,
-      double pivotTorqueAmps,
-      boolean driveIsOk,
-      double drivePose,
-      double driveMps,
-      double driveSetpointMps,
-      double driveAppliedVolts,
-      double driveStatorAmps,
-      double driveTorqueAmps,
-      boolean cancoderIsOk,
-      double cancoderRevs) {}
+  @AutoLog
+  public static class LoggableState {
+    public int index;
+
+    public boolean pivotIsOk = false;
+    public double pivotRevs;
+    public double pivotSetpointRevs;
+    public double pivotAppliedVolts;
+    public double pivotCurrentAmps;
+    public double pivotTorqueAmps;
+
+    public boolean driveIsOk = false;
+    public double driveDistanceMeters;
+    public double driveMps;
+    public double driveSetpointMps;
+    public double driveAppliedVolts;
+    public double driveCurrentAmps;
+    public double driveTorqueAmps;
+
+    public boolean cancoderIsOk = false;
+    public double cancoderRevs;
+  }
 
   /**
-   * @return {@link LoggableState} representing the latest hardware measurements
+   * Updates an older {@link LoggableState} with new measurements
    */
-  public LoggableState getLoggableState();
+  public void updateLoggableState(LoggableState oldState);
 
   /**
    * Set pivot motor setpoint voltage
    *
-   * @param volts Desired voltage
+   * <p> volts Desired voltage
    */
   public void setPivotAppliedVolts(double volts);
 
   /**
    * Set drive motor setpoint voltage
    *
-   * @param volts Desired voltage
+   * <p> volts Desired voltage
    */
   public void setDriveAppliedVolts(double volts);
 
   /**
    * Set pivot motor setpoint position
    *
-   * @param poseRevs Desired position in revs
+   * <p> poseRevs Desired position in revs
    */
   public void setPivotSetpointPose(double poseRevs);
 
   /**
    * Set drive motor setpoint speed
    *
-   * @param speedMps Desired speed in Meters/Second
+   * <p> speedMps Desired speed in Meters/Second
    */
   public void setDriveSetpointSpeed(double speedMps);
 

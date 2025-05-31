@@ -6,42 +6,28 @@
 
 package lib.drivers;
 
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.TimedRobot;
+import org.littletonrobotics.junction.LoggedRobot;
+
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import lib.utils.Tracer;
-import monologue.Logged;
-import monologue.Monologue;
-import monologue.Monologue.MonologueConfig;
 
-/** Inspired by https://github.com/wpilibsuite/allwpilib/pull/5939 */
-public abstract class LoggedCommandRobot extends TimedRobot implements Logged {
+/**
+ * @see https://github.com/wpilibsuite/allwpilib/pull/5939
+ */
+public abstract class LoggedCommandRobot extends LoggedRobot {
   private final Timer gcTimer = new Timer();
   protected final CommandScheduler scheduler = CommandScheduler.getInstance();
-
-  public final Trigger disabled = new Trigger(() -> DriverStation.isDisabled());
-  public final Trigger inTeleoperated = new Trigger(() -> DriverStation.isTeleopEnabled());
-  public final Trigger inAutonomous = new Trigger(() -> DriverStation.isAutonomous());
 
   private Command autonCommand;
 
   public LoggedCommandRobot() {
-    this(kDefaultPeriod);
+    this(defaultPeriodSecs);
   }
 
   public LoggedCommandRobot(double period) {
     super(period);
-    // Monologue setup
-    Monologue.setupMonologue(
-        this,
-        "/Logged",
-        new MonologueConfig(DriverStation::isFMSAttached, "", false, true)
-            .withDatalogPrefix("")
-            .withOptimizeBandwidth(DriverStation::isFMSAttached)
-            .withLazyLogging(true));
 
     gcTimer.start();
   }
@@ -50,7 +36,6 @@ public abstract class LoggedCommandRobot extends TimedRobot implements Logged {
   public void robotPeriodic() {
     // Profiles the Command Scheduler and Monologue
     Tracer.traceFunc("CommandScheduler", scheduler::run);
-    Tracer.traceFunc("Monologue", Monologue::updateAll);
 
     // RIO memory optimization
     if (gcTimer.hasElapsed(5)) {

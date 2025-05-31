@@ -50,27 +50,27 @@ public class ModuleHardwareSim implements ModuleHardware {
   }
 
   @Override
-  public LoggableState getLoggableState() {
+  public void updateLoggableState(LoggableState oldState) {
     pivotSim.update(Constants.LOOPTIME.in(Seconds));
     driveSim.update(Constants.LOOPTIME.in(Seconds));
 
-    return new LoggableState(
-        index,
-        true,
-        pivotSim.getAngularPositionRotations(),
-        0.0,
-        pivotAppliedVolts,
-        pivotSim.getCurrentDrawAmps(),
-        pivotSim.getTorqueNewtonMeters() / pivotModel.KtNMPerAmp,
-        true,
-        driveSim.getAngularPositionRad() * SwerveConstants.WHEEL_RADIUS.in(Meters),
-        driveSim.getAngularVelocityRadPerSec() * SwerveConstants.WHEEL_RADIUS.in(Meters),
-        driveFeedback.getSetpoint(),
-        driveAppliedVolts,
-        driveSim.getCurrentDrawAmps(),
-        pivotSim.getTorqueNewtonMeters() / driveModel.KtNMPerAmp,
-        true,
-        pivotSim.getAngularPositionRotations());
+    oldState.index = index;
+    oldState.pivotIsOk = true;
+    oldState.pivotRevs = pivotSim.getAngularPositionRotations();
+    oldState.pivotSetpointRevs = pivotFeedback.getSetpoint();
+    oldState.pivotAppliedVolts = pivotAppliedVolts;
+    oldState.pivotCurrentAmps = pivotSim.getCurrentDrawAmps();
+    oldState.pivotTorqueAmps = pivotSim.getTorqueNewtonMeters() / pivotModel.KtNMPerAmp;
+
+    oldState.driveIsOk = true;
+    oldState.driveDistanceMeters = driveSim.getAngularPositionRad() * SwerveConstants.WHEEL_RADIUS.in(Meters);
+    oldState.driveMps = driveSim.getAngularVelocityRadPerSec() * SwerveConstants.WHEEL_RADIUS.in(Meters);
+    oldState.driveSetpointMps = driveFeedback.getSetpoint();
+    oldState.driveAppliedVolts = driveAppliedVolts;
+    oldState.driveCurrentAmps = driveSim.getCurrentDrawAmps();
+    oldState.driveTorqueAmps = pivotSim.getTorqueNewtonMeters() / driveModel.KtNMPerAmp;
+    oldState.cancoderIsOk = true;
+    oldState.cancoderRevs = pivotSim.getAngularPositionRotations();
   }
 
   private double addFriction(double motorVoltage, double frictionVoltage) {
