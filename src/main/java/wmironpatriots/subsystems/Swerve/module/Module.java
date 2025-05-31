@@ -4,13 +4,13 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // MIT license file in the root directory of this project
 
-package wmironpatriots.subsystems.Swerve.module;
+package wmironpatriots.subsystems.swerve.module;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import lib.utils.MonologueUtils;
-import wmironpatriots.subsystems.Swerve.module.ModuleHardware.LoggableState;
+import wmironpatriots.subsystems.swerve.module.ModuleHardware.LoggableState;
 
 public class Module {
   private final ModuleHardware hardware;

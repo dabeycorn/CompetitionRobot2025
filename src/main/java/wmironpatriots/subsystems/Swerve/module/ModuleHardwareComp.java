@@ -4,7 +4,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // MIT license file in the root directory of this project
 
-package wmironpatriots.subsystems.Swerve.module;
+package wmironpatriots.subsystems.swerve.module;
 
 import static edu.wpi.first.units.Units.Meters;
 
@@ -22,8 +22,8 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import lib.utils.TalonFxUtil;
-import wmironpatriots.subsystems.Swerve.SwerveConstants;
-import wmironpatriots.subsystems.Swerve.SwerveConstants.ModuleConfig;
+import wmironpatriots.subsystems.swerve.SwerveConstants;
+import wmironpatriots.subsystems.swerve.SwerveConstants.ModuleConfig;
 
 /**
  * Represents a Swerve module with the following specifications:

@@ -4,7 +4,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // MIT license file in the root directory of this project
 
-package wmironpatriots.subsystems.Swerve;
+package wmironpatriots.subsystems.swerve;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
@@ -28,12 +28,12 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import java.util.function.DoubleSupplier;
 import wmironpatriots.Constants;
 import wmironpatriots.Robot;
-import wmironpatriots.subsystems.Swerve.gyro.GyroHardware;
-import wmironpatriots.subsystems.Swerve.gyro.GyroHardwareComp;
-import wmironpatriots.subsystems.Swerve.gyro.GyroHardwareNone;
-import wmironpatriots.subsystems.Swerve.module.Module;
-import wmironpatriots.subsystems.Swerve.module.ModuleHardwareComp;
-import wmironpatriots.subsystems.Swerve.module.ModuleHardwareSim;
+import wmironpatriots.subsystems.swerve.gyro.GyroHardware;
+import wmironpatriots.subsystems.swerve.gyro.GyroHardwareComp;
+import wmironpatriots.subsystems.swerve.gyro.GyroHardwareNone;
+import wmironpatriots.subsystems.swerve.module.Module;
+import wmironpatriots.subsystems.swerve.module.ModuleHardwareComp;
+import wmironpatriots.subsystems.swerve.module.ModuleHardwareSim;
 
 public class Swerve implements Subsystem {
   public static Swerve create() {
@@ -131,8 +131,8 @@ public class Swerve implements Subsystem {
                     angularRateMagnitude.getAsDouble()
                         * SwerveConstants.MAX_ANGULAR_RATE.in(RadiansPerSecond),
                     DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
-                      ? getHeadingRotation2d()
-                      : getHeadingRotation2d().plus(Rotation2d.k180deg))));
+                        ? getHeadingRotation2d()
+                        : getHeadingRotation2d().plus(Rotation2d.k180deg))));
   }
 
   public Command stopAndLock() {

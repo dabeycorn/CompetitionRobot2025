@@ -4,7 +4,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // MIT license file in the root directory of this project
 
-package wmironpatriots.subsystems.Swerve.module;
+package wmironpatriots.subsystems.swerve.module;
 
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Seconds;
@@ -16,8 +16,8 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import wmironpatriots.Constants;
-import wmironpatriots.subsystems.Swerve.SwerveConstants;
-import wmironpatriots.subsystems.Swerve.SwerveConstants.ModuleConfig;
+import wmironpatriots.subsystems.swerve.SwerveConstants;
+import wmironpatriots.subsystems.swerve.SwerveConstants.ModuleConfig;
 
 public class ModuleHardwareSim implements ModuleHardware {
   public static final double PIVOT_REDUCTION = 150 / 7;
@@ -31,7 +31,7 @@ public class ModuleHardwareSim implements ModuleHardware {
   private final DCMotorSim pivotSim, driveSim;
   private double pivotAppliedVolts, driveAppliedVolts;
 
-  private PIDController pivotFeedback = new PIDController(50.0, 0.0, 0.0);
+  private PIDController pivotFeedback = new PIDController(100.0, 0.0, 0.0);
   private PIDController driveFeedback = new PIDController(3.2, 0.0, 0.0);
   private SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(0.233, 2.02, 0.05);
 
