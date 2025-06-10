@@ -7,7 +7,6 @@
 package wmironpatriots;
 
 import com.ctre.phoenix6.SignalLogger;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -25,7 +24,6 @@ import monologue.Logged;
 import monologue.Monologue;
 import monologue.Monologue.MonologueConfig;
 import wmironpatriots.Constants.RobotType;
-import wmironpatriots.subsystems.swerve.Swerve;
 
 public class Robot extends CommandRobot implements Logged {
   public static final RobotType robotType = Robot.isReal() ? RobotType.REAL : RobotType.SIM;
