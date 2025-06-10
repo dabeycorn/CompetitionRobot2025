@@ -7,6 +7,7 @@
 package wmironpatriots;
 
 import com.ctre.phoenix6.SignalLogger;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -20,23 +21,18 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import lib.drivers.CommandRobot;
-import org.littletonrobotics.junction.LogFileUtil;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.NT4Publisher;
-import org.littletonrobotics.junction.wpilog.WPILOGReader;
-import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import monologue.Logged;
+import monologue.Monologue;
+import monologue.Monologue.MonologueConfig;
 import wmironpatriots.Constants.RobotType;
 import wmironpatriots.subsystems.swerve.Swerve;
 
-public class Robot extends CommandRobot {
+public class Robot extends CommandRobot implements Logged {
   public static final RobotType robotType = Robot.isReal() ? RobotType.REAL : RobotType.SIM;
 
   // HARDWARE
   private final CommandPS5Controller driver = new CommandPS5Controller(0);
   private final CommandXboxController operator = new CommandXboxController(1);
-
-  // SUBSYSTEMS
-  private final Swerve swerve = Swerve.create();
 
   // ALERTS
   private final Alert browningOut;
@@ -51,36 +47,23 @@ public class Robot extends CommandRobot {
     SignalLogger.enableAutoLogging(false);
 
     // logs build data to the datalog
-    Logger.recordMetadata("RuntimeType", getRuntimeType().toString());
-    Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
-    Logger.recordMetadata("Version", BuildConstants.VERSION);
-    Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
-    Logger.recordMetadata("GitDirty", String.valueOf(BuildConstants.DIRTY));
-    Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
-    Logger.recordMetadata("GitDate", BuildConstants.BUILD_DATE);
-    Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
+    Monologue.setupMonologue(
+        this,
+        "/Robot",
+        new MonologueConfig(DriverStation::isFMSAttached, "", false, true)
+            .withLazyLogging(true)
+            .withDatalogPrefix("Telemetry"));
 
-    // Setup Logger data recivers and replay sources
-    switch (robotType) {
-      case REAL:
-        Logger.addDataReceiver(new WPILOGWriter("/U")); // Log to USB
-        Logger.addDataReceiver(new NT4Publisher()); // Log to Network Tables
-        break;
-      case SIM:
-        Logger.addDataReceiver(new NT4Publisher()); // Log to Network Tables only
-        break;
-      case REPLAY:
-        setUseTiming(false); // Run as fast as possible
-        String logPath = LogFileUtil.findReplayLog(); // Pull replay file name
-        Logger.setReplaySource(new WPILOGReader(logPath));
-        Logger.addDataReceiver(
-            new WPILOGWriter(
-                LogFileUtil.addPathSuffix(logPath, "_sim"))); // Saves replay as new log
-        break;
-    }
-
-    // Once Logger starts, no data recivers, replay sources, or metadata can be added
-    Logger.start();
+    // logs build data to the datalog
+    final String meta = "/BuildData/";
+    Monologue.log(meta + "RuntimeType", getRuntimeType().toString());
+    Monologue.log(meta + "ProjectName", BuildConstants.MAVEN_NAME);
+    Monologue.log(meta + "Version", BuildConstants.VERSION);
+    Monologue.log(meta + "BuildDate", BuildConstants.BUILD_DATE);
+    Monologue.log(meta + "GitDirty", String.valueOf(BuildConstants.DIRTY));
+    Monologue.log(meta + "GitSHA", BuildConstants.GIT_SHA);
+    Monologue.log(meta + "GitDate", BuildConstants.GIT_DATE);
+    Monologue.log(meta + "GitBranch", BuildConstants.GIT_BRANCH);
 
     // Sets up alerts
     browningOut = new Alert("Browning Out!", AlertType.kWarning);
@@ -104,15 +87,7 @@ public class Robot extends CommandRobot {
 
   private void configureBindings() {}
 
-  private void configureGameBehavior() {
-    swerve.setDefaultCommand(
-        swerve
-            .driveFromMagnitudes(
-                () -> modifyJoystick(driver.getLeftY() * -1),
-                () -> modifyJoystick(driver.getLeftX() * -1),
-                () -> modifyJoystick(driver.getRightX() * -1))
-            .repeatedly());
-  }
+  private void configureGameBehavior() {}
 
   /**
    * Squares and deadbands a joystick value
