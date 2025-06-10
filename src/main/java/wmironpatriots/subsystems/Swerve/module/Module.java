@@ -9,12 +9,12 @@ package wmironpatriots.subsystems.swerve.module;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import wmironpatriots.subsystems.swerve.module.ModuleHardware.LoggableState;
+import wmironpatriots.subsystems.swerve.module.ModuleHardware.ModuleHardwareInputs;
 
 public class Module {
   private final ModuleHardware hardware;
 
-  private LoggableState loggableState = new LoggableState();
+  private final ModuleHardwareInputs inputs = new ModuleHardwareInputs();
 
   public Module(ModuleHardware hardware) {
     this.hardware = hardware;
@@ -22,7 +22,7 @@ public class Module {
 
   /** Periodic Swerve Module logic */
   public void periodic() {
-    hardware.updateLoggableState(loggableState);
+    hardware.updateInputs(inputs);
   }
 
   /**
@@ -54,20 +54,20 @@ public class Module {
    * @return {@link Rotation2d} representing the angle of the module
    */
   public Rotation2d getRotation2d() {
-    return Rotation2d.fromRotations(loggableState.pivotRevs);
+    return Rotation2d.fromRotations(inputs.pivotRevs);
   }
 
   /**
    * @return {@link SwerveModuleState} representing the measured position and speed of the module
    */
   public SwerveModuleState getSwerveModuleState() {
-    return new SwerveModuleState(loggableState.driveMps, getRotation2d());
+    return new SwerveModuleState(inputs.driveMps, getRotation2d());
   }
 
   /**
    * @return {@link SwerveModulePosition} representing the measured field pose of the module
    */
   public SwerveModulePosition getSwerveModulePosition() {
-    return new SwerveModulePosition(loggableState.driveDistanceMeters, getRotation2d());
+    return new SwerveModulePosition(inputs.driveDistanceMeters, getRotation2d());
   }
 }

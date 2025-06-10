@@ -13,25 +13,40 @@ public interface ModuleHardware {
   /**
    * Represents a set of measured values from module hardware
    *
-   * <p> index
-   * <p> pivotIsOk Is pivot motor measuring correctly?
-   * <p> pivotRevs Position measurement of pivot motor in revolutions (relative encoder)
-   * <p> pivotSetpointPoseRevs Position setpoint of pivot motor in revolutions
-   * <p> pivotAppliedVolts Output voltage of pivot motor in volts
-   * <p> pivotStatorAmps Stator current of pivot motor in amps
-   * <p> pivotTorqueAmps Torque output of pivot motor in amps
-   * <p> driveIsOk Is drive motor measuring correctly?
-   * <p> driveDistance Distance driven in meters
-   * <p> driveMps Speed measurement of the drive motor in Meters/Second
-   * <p> driveSetpointMps Speed setpoint of drive motor in Meters/Second
-   * <p> driveAppliedVolts Output voltage of drive motor in volts
-   * <p> driveStatorAmps Stator current of drive motor in amps
-   * <p> driveTorqueAmps Torque output of drive motor in amps
-   * <p> cancoderIsOk Is CANcoder measuring correctly?
-   * <p> cancoderRevs Position measurement of pivot motor in revolutions
+   * <p>index
+   *
+   * <p>pivotIsOk Is pivot motor measuring correctly?
+   *
+   * <p>pivotRevs Position measurement of pivot motor in revolutions (relative encoder)
+   *
+   * <p>pivotSetpointPoseRevs Position setpoint of pivot motor in revolutions
+   *
+   * <p>pivotAppliedVolts Output voltage of pivot motor in volts
+   *
+   * <p>pivotStatorAmps Stator current of pivot motor in amps
+   *
+   * <p>pivotTorqueAmps Torque output of pivot motor in amps
+   *
+   * <p>driveIsOk Is drive motor measuring correctly?
+   *
+   * <p>driveDistance Distance driven in meters
+   *
+   * <p>driveMps Speed measurement of the drive motor in Meters/Second
+   *
+   * <p>driveSetpointMps Speed setpoint of drive motor in Meters/Second
+   *
+   * <p>driveAppliedVolts Output voltage of drive motor in volts
+   *
+   * <p>driveStatorAmps Stator current of drive motor in amps
+   *
+   * <p>driveTorqueAmps Torque output of drive motor in amps
+   *
+   * <p>cancoderIsOk Is CANcoder measuring correctly?
+   *
+   * <p>cancoderRevs Position measurement of pivot motor in revolutions
    */
   @AutoLog
-  public static class LoggableState {
+  public class ModuleHardwareInputs {
     public int index;
 
     public boolean pivotIsOk = false;
@@ -53,36 +68,34 @@ public interface ModuleHardware {
     public double cancoderRevs;
   }
 
-  /**
-   * Updates an older {@link LoggableState} with new measurements
-   */
-  public void updateLoggableState(LoggableState oldState);
+  /** Updates an older {@link ModuleHardwareInputs} with new measurements */
+  public void updateInputs(ModuleHardwareInputs inputs);
 
   /**
    * Set pivot motor setpoint voltage
    *
-   * <p> volts Desired voltage
+   * <p>volts Desired voltage
    */
   public void setPivotAppliedVolts(double volts);
 
   /**
    * Set drive motor setpoint voltage
    *
-   * <p> volts Desired voltage
+   * <p>volts Desired voltage
    */
   public void setDriveAppliedVolts(double volts);
 
   /**
    * Set pivot motor setpoint position
    *
-   * <p> poseRevs Desired position in revs
+   * <p>poseRevs Desired position in revs
    */
   public void setPivotSetpointPose(double poseRevs);
 
   /**
    * Set drive motor setpoint speed
    *
-   * <p> speedMps Desired speed in Meters/Second
+   * <p>speedMps Desired speed in Meters/Second
    */
   public void setDriveSetpointSpeed(double speedMps);
 

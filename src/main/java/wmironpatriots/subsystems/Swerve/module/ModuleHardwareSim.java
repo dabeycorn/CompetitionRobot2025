@@ -50,27 +50,29 @@ public class ModuleHardwareSim implements ModuleHardware {
   }
 
   @Override
-  public void updateLoggableState(LoggableState oldState) {
+  public void updateInputs(ModuleHardwareInputs inputs) {
     pivotSim.update(Constants.LOOPTIME.in(Seconds));
     driveSim.update(Constants.LOOPTIME.in(Seconds));
 
-    oldState.index = index;
-    oldState.pivotIsOk = true;
-    oldState.pivotRevs = pivotSim.getAngularPositionRotations();
-    oldState.pivotSetpointRevs = pivotFeedback.getSetpoint();
-    oldState.pivotAppliedVolts = pivotAppliedVolts;
-    oldState.pivotCurrentAmps = pivotSim.getCurrentDrawAmps();
-    oldState.pivotTorqueAmps = pivotSim.getTorqueNewtonMeters() / pivotModel.KtNMPerAmp;
+    inputs.index = index;
+    inputs.pivotIsOk = true;
+    inputs.pivotRevs = pivotSim.getAngularPositionRotations();
+    inputs.pivotSetpointRevs = pivotFeedback.getSetpoint();
+    inputs.pivotAppliedVolts = pivotAppliedVolts;
+    inputs.pivotCurrentAmps = pivotSim.getCurrentDrawAmps();
+    inputs.pivotTorqueAmps = pivotSim.getTorqueNewtonMeters() / pivotModel.KtNMPerAmp;
 
-    oldState.driveIsOk = true;
-    oldState.driveDistanceMeters = driveSim.getAngularPositionRad() * SwerveConstants.WHEEL_RADIUS.in(Meters);
-    oldState.driveMps = driveSim.getAngularVelocityRadPerSec() * SwerveConstants.WHEEL_RADIUS.in(Meters);
-    oldState.driveSetpointMps = driveFeedback.getSetpoint();
-    oldState.driveAppliedVolts = driveAppliedVolts;
-    oldState.driveCurrentAmps = driveSim.getCurrentDrawAmps();
-    oldState.driveTorqueAmps = pivotSim.getTorqueNewtonMeters() / driveModel.KtNMPerAmp;
-    oldState.cancoderIsOk = true;
-    oldState.cancoderRevs = pivotSim.getAngularPositionRotations();
+    inputs.driveIsOk = true;
+    inputs.driveDistanceMeters =
+        driveSim.getAngularPositionRad() * SwerveConstants.WHEEL_RADIUS.in(Meters);
+    inputs.driveMps =
+        driveSim.getAngularVelocityRadPerSec() * SwerveConstants.WHEEL_RADIUS.in(Meters);
+    inputs.driveSetpointMps = driveFeedback.getSetpoint();
+    inputs.driveAppliedVolts = driveAppliedVolts;
+    inputs.driveCurrentAmps = driveSim.getCurrentDrawAmps();
+    inputs.driveTorqueAmps = pivotSim.getTorqueNewtonMeters() / driveModel.KtNMPerAmp;
+    inputs.cancoderIsOk = true;
+    inputs.cancoderRevs = pivotSim.getAngularPositionRotations();
   }
 
   private double addFriction(double motorVoltage, double frictionVoltage) {

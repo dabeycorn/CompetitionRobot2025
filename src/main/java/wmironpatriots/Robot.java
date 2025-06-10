@@ -6,14 +6,7 @@
 
 package wmironpatriots;
 
-import org.littletonrobotics.junction.LogFileUtil;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.NT4Publisher;
-import org.littletonrobotics.junction.wpilog.WPILOGReader;
-import org.littletonrobotics.junction.wpilog.WPILOGWriter;
-
 import com.ctre.phoenix6.SignalLogger;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -26,11 +19,16 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import lib.drivers.LoggedCommandRobot;
+import lib.drivers.CommandRobot;
+import org.littletonrobotics.junction.LogFileUtil;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import wmironpatriots.Constants.RobotType;
 import wmironpatriots.subsystems.swerve.Swerve;
 
-public class Robot extends LoggedCommandRobot {
+public class Robot extends CommandRobot {
   public static final RobotType robotType = Robot.isReal() ? RobotType.REAL : RobotType.SIM;
 
   // HARDWARE
@@ -62,7 +60,7 @@ public class Robot extends LoggedCommandRobot {
     Logger.recordMetadata("GitDate", BuildConstants.BUILD_DATE);
     Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
 
-    // Setup Logger data recivers and replay sources 
+    // Setup Logger data recivers and replay sources
     switch (robotType) {
       case REAL:
         Logger.addDataReceiver(new WPILOGWriter("/U")); // Log to USB
@@ -75,7 +73,9 @@ public class Robot extends LoggedCommandRobot {
         setUseTiming(false); // Run as fast as possible
         String logPath = LogFileUtil.findReplayLog(); // Pull replay file name
         Logger.setReplaySource(new WPILOGReader(logPath));
-        Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Saves replay as new log
+        Logger.addDataReceiver(
+            new WPILOGWriter(
+                LogFileUtil.addPathSuffix(logPath, "_sim"))); // Saves replay as new log
         break;
     }
 

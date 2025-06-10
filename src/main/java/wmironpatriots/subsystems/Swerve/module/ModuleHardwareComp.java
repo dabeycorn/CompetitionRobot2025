@@ -154,26 +154,28 @@ public class ModuleHardwareComp implements ModuleHardware {
   }
 
   @Override
-  public void updateLoggableState(LoggableState oldState) {
-    oldState.index = index;
-    oldState.pivotIsOk = BaseStatusSignal.refreshAll(pivotPose, pivotVolts, pivotCurrent, pivotTorque).isOK();
-    oldState.pivotRevs = pivotPose.getValueAsDouble();
-    oldState.pivotSetpointRevs = poseReq.Position;
-    oldState.pivotAppliedVolts = pivotVolts.getValueAsDouble();
-    oldState.pivotCurrentAmps = pivotCurrent.getValueAsDouble();
-    oldState.pivotTorqueAmps = pivotTorque.getValueAsDouble();
-    
-    oldState.driveIsOk = BaseStatusSignal.refreshAll(drivePose, driveSpeed, driveVolts, driveCurrent, driveTorque)
+  public void updateInputs(ModuleHardwareInputs inputs) {
+    inputs.index = index;
+    inputs.pivotIsOk =
+        BaseStatusSignal.refreshAll(pivotPose, pivotVolts, pivotCurrent, pivotTorque).isOK();
+    inputs.pivotRevs = pivotPose.getValueAsDouble();
+    inputs.pivotSetpointRevs = poseReq.Position;
+    inputs.pivotAppliedVolts = pivotVolts.getValueAsDouble();
+    inputs.pivotCurrentAmps = pivotCurrent.getValueAsDouble();
+    inputs.pivotTorqueAmps = pivotTorque.getValueAsDouble();
+
+    inputs.driveIsOk =
+        BaseStatusSignal.refreshAll(drivePose, driveSpeed, driveVolts, driveCurrent, driveTorque)
             .isOK();
-    oldState.driveDistanceMeters = drivePose.getValueAsDouble();
-    oldState.driveMps = driveSpeed.getValueAsDouble();
-    oldState.driveSetpointMps = velReq.Velocity;
-    oldState.driveAppliedVolts = driveVolts.getValueAsDouble();
-    oldState.driveCurrentAmps = driveCurrent.getValueAsDouble();
-    oldState.driveTorqueAmps = driveTorque.getValueAsDouble();
-    
-    oldState.cancoderIsOk = BaseStatusSignal.refreshAll(cancoderPose).isOK();
-    oldState.cancoderRevs = cancoderPose.getValueAsDouble();
+    inputs.driveDistanceMeters = drivePose.getValueAsDouble();
+    inputs.driveMps = driveSpeed.getValueAsDouble();
+    inputs.driveSetpointMps = velReq.Velocity;
+    inputs.driveAppliedVolts = driveVolts.getValueAsDouble();
+    inputs.driveCurrentAmps = driveCurrent.getValueAsDouble();
+    inputs.driveTorqueAmps = driveTorque.getValueAsDouble();
+
+    inputs.cancoderIsOk = BaseStatusSignal.refreshAll(cancoderPose).isOK();
+    inputs.cancoderRevs = cancoderPose.getValueAsDouble();
   }
 
   @Override
