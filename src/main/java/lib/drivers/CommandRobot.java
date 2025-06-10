@@ -6,8 +6,7 @@
 
 package lib.drivers;
 
-import org.littletonrobotics.junction.LoggedRobot;
-
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -16,17 +15,17 @@ import lib.utils.Tracer;
 /**
  * @see https://github.com/wpilibsuite/allwpilib/pull/5939
  */
-public abstract class LoggedCommandRobot extends LoggedRobot {
+public abstract class CommandRobot extends TimedRobot {
   private final Timer gcTimer = new Timer();
   protected final CommandScheduler scheduler = CommandScheduler.getInstance();
 
   private Command autonCommand;
 
-  public LoggedCommandRobot() {
-    this(defaultPeriodSecs);
+  public CommandRobot() {
+    this(kDefaultPeriod);
   }
 
-  public LoggedCommandRobot(double period) {
+  public CommandRobot(double period) {
     super(period);
 
     gcTimer.start();
