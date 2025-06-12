@@ -20,6 +20,7 @@ import lib.wpilibExt.CommandRobot;
 import monologue.Logged;
 import monologue.Monologue;
 import monologue.Monologue.MonologueConfig;
+import wmironpatriots.Constants.FLAGS;
 
 public class Robot extends CommandRobot implements Logged {
   // HARDWARE
@@ -30,7 +31,7 @@ public class Robot extends CommandRobot implements Logged {
   private final Alert browningOut;
 
   public Robot() {
-    super(Constants.LOOPTIME);
+    super(FLAGS.LOOPTIME);
 
     // Shut up driverstation
     DriverStation.silenceJoystickConnectionWarning(true);
