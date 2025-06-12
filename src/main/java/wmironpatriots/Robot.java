@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import lib.utils.Tracer;
 import lib.wpilibExt.CommandRobot;
 import monologue.Logged;
 import monologue.Monologue;
@@ -61,6 +62,9 @@ public class Robot extends CommandRobot implements Logged {
     Monologue.log(meta + "GitSHA", BuildConstants.GIT_SHA);
     Monologue.log(meta + "GitDate", BuildConstants.GIT_DATE);
     Monologue.log(meta + "GitBranch", BuildConstants.GIT_BRANCH);
+
+    // Update Monologue periodically
+    addPeriodic(() -> Tracer.traceFunc("Monologue", Monologue::updateAll), 0.02);
 
     // Update Smart Dashboard visualizers periodically
     addPeriodic(
