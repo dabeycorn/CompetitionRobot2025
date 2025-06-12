@@ -56,9 +56,5 @@
     "edu.wpi.first.math.proto.*",
     "edu.wpi.first.math.**.proto.*",
     "edu.wpi.first.math.**.struct.*",
-  ],
-  "wpilib.skipSelectSimulateExtension": true,
-  "editor.tabSize": 2,
-  "java.compile.nullAnalysis.nullable": [],
-  "java.compile.nullAnalysis.nonnull": []
+  ]
 }
